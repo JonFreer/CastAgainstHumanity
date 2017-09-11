@@ -155,16 +155,27 @@
     }
     swapStyleSheet("rMain.css")
 
+<<<<<<< HEAD
     document.getElementsByTagName("BODY")[0].innerHTML = '<div id= "scoreboard">Score<div id="scores"></div></div><div id= "main">     </div>'
+=======
+    document.getElementsByTagName("BODY")[0].innerHTML = '<div id= "scoreboard">Score<div id="scores"></div></div><div id= "main">     <div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div></div>'
+>>>>>>> df52d1cde94fddf4d0f4b39a26e6ae7e535fb68d
     window.czar = -1;
     updateScore();
     
     nextTurn();
+<<<<<<< HEAD
     //<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div>
   };
 
   function nextTurn() {
     document.getElementById("main").innerHTML='<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div> '
+=======
+
+  };
+
+  function nextTurn() {
+>>>>>>> df52d1cde94fddf4d0f4b39a26e6ae7e535fb68d
     currentCards = []
     if (czar < playerArray.length - 1) { czar++ }
     else { czar = 0 }
