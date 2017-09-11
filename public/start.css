@@ -1,0 +1,30 @@
+        body {
+            margin-top: 15%;
+            text-align: center;
+            font-size: 300%;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #1e1e1e;
+            font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        }
+
+
+        input {
+            font-family: "Arial", Arial, sans-serif;
+            font-size: 40px;
+            font-weight: bold;
+            color: #1e1e1e;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .border {
+            border: 2px solid #cccccc;
+            border-radius: 5px;
+        }
+
+        .border:focus {
+            outline: none;
+            border-color: #8ecaed;
+            box-shadow: 0 0 5px #8ecaed;
+        }
