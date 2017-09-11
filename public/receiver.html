@@ -102,6 +102,7 @@
         playerArray[getIDfromSender(event.senderId)].currentCard = event.data.substring(2);
         currentCards.push(event.data.substring(2));
         window.messageBusTrig.send(event.senderId, "caUp"+window.wCardOrder.splice(0,1));//cardupdate
+        document.getElementById("main").innerHTML=document.getElementById("main").innerHTML+ '<div class="white" id="w'+currnetCards.length+'"></div>';
         
         //callback:// 2d array to store player id (DONE)
         if (currentCards.length == playerArray.length - 1) {
@@ -154,15 +155,16 @@
     }
     swapStyleSheet("rMain.css")
 
-    document.getElementsByTagName("BODY")[0].innerHTML = '<div id= "scoreboard">Score<div id="scores"></div></div><div id= "main">     <div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div></div>'
+    document.getElementsByTagName("BODY")[0].innerHTML = '<div id= "scoreboard">Score<div id="scores"></div></div><div id= "main">     </div>'
     window.czar = -1;
     updateScore();
     
     nextTurn();
-
+    //<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div>
   };
 
   function nextTurn() {
+    document.getElementById("main").innerHTML='<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div> '
     currentCards = []
     if (czar < playerArray.length - 1) { czar++ }
     else { czar = 0 }
