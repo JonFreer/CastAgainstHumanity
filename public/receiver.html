@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link id="pagestyle" rel="stylesheet" type="text/css" href="rStart.css">
+  <title>Cast Against Humanity</title>
+</head>
+
+<body>
+  <audio autoplay>
+    <source src="runescape-adventure.mp3" type="audio/mpeg">
+  </audio>
+  <div id="wfp">Waiting for Players</div>
+  <!-- <div id="message"></div> -->
+  <div id="playernames"></div>
+</body>
+<script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+<script type="text/javascript">
+  //Player Array
+  var playerArray = [];
+  var playerNames = [];
+  var cardDesc = ["Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man"]
+
+  window.onload = function () {
+    cast.receiver.logger.setLevelValue(0);
+    window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+    console.log('Starting Receiver Manager');
+
+    // handler for the 'ready' event
+    castReceiverManager.onReady = function (event) {
+      console.log('Received Ready event: ' + JSON.stringify(event.data));
+      window.castReceiverManager.setApplicationState('Application status is ready...');
+    };
+
+    // handler for 'senderconnected' event
+    castReceiverManager.onSenderConnected = function (event) {
+      console.log('Received Sender Connected event: ' + event.data);
+      console.log(window.castReceiverManager.getSender(event.data).userAgent);
+    };
+
+    // handler for 'senderdisconnected' event
+    castReceiverManager.onSenderDisconnected = function (event) {
+      console.log('Received Sender Disconnected event: ' + event.data);
+      if (window.castReceiverManager.getSenders().length == 0) {
+        window.close();
+      }
+    };
+
+    // handler for 'systemvolumechanged' event
+    castReceiverManager.onSystemVolumeChanged = function (event) {
+      console.log('Received System Volume Changed event: ' + event.data['level'] + ' ' +
+        event.data['muted']);
+    };
+
+    // create a CastMessageBus to handle messages for a custom namespace
+    window.messageBusTrig =
+      window.castReceiverManager.getCastMessageBus(
+        'urn:x-cast:uk.co.jonfreer.cah.startTrig');
+
+    window.messageBus =
+      window.castReceiverManager.getCastMessageBus(
+        'urn:x-cast:uk.co.jonfreer.cah.join');
+
+
+
+    // ON PLAYER JOIN AT START
+    // handler for the CastMessageBus message event
+    window.messageBus.onMessage = function (event) {
+      console.log('Message [' + event.senderId + ']: ' + event.data);
+      // display the message from the sender
+      playerArray.push({ sendID: event.senderId, name: event.data, score: 0, currentCard: null });
+      playerNames.push(event.data)
+      //window.broadcast(playerArray);
+
+      //console.log(playerArray.toString())
+      window.messageBus.broadcast(playerNames.toString())
+      displayText();//event.data);
+      //displayText(senderId);
+      // inform all senders on the CastMessageBus of the incoming message event
+      // sender message listener will be invoked
+
+      //window.messageBus.send(event.senderId, event.data);
+    }
+
+    // initialize the CastReceiverManager with an application status message
+    window.castReceiverManager.start({ statusText: 'Application is starting' });
+    console.log('Receiver Manager started');
+
+    // create a CastMessageBus to handle messages for a custom namespace for trig
+
+    window.messageBusTrig.onMessage = function (event) {
+      console.log(event.data);
+      if (event.data == "Start Game") {
+        window.messageBusTrig.broadcast("GameBegin");
+        console.log("GameBegin");
+        window.castReceiverManager.setApplicationState("Game Active");
+        initGame();
+      }
+      else if (event.data.substring(0, 2) == "pS") {
+        console.log("YEBOOIIII");
+        window.wCardOrder.push(event.data.substring(2));
+        playerArray[getIDfromSender(event.senderId)].currentCard = event.data.substring(2);
+        currentCards.push(event.data.substring(2));
+        window.messageBusTrig.send(event.senderId, "caUp"+window.wCardOrder.splice(0,1));//cardupdate
+        
+        //callback:// 2d array to store player id (DONE)
+        if (currentCards.length == playerArray.length - 1) {
+          vote();
+        }
+
+      }
+      else if (event.data.substring(0, 2) == "cS") {
+        console.log(event.data)
+        document.getElementById("w" + event.data.substring(2)).style.color = "#30fc2d";
+        playerArray[getIDfromCard(currentCards[event.data.substring(2)])].score++;
+        console.log(playerArray);
+        updateScore();
+        setTimeout(nextTurn, 5000);
+
+      }
+
+
+    }
+
+  };
+
+  function getIDfromSender(sID) {
+    for (i = 0; i < playerArray.length; i++) {
+      if (playerArray[i].sendID == sID) {
+        return i;
+      }
+    }
+  }
+
+  function getIDfromCard(cID) {
+    for (i = 0; i < playerArray.length; i++) {
+      if (playerArray[i].currentCard == cID) {
+        return i;
+      }
+    }
+  }
+
+  function swapStyleSheet(sheet) {
+    document.getElementById("pagestyle").setAttribute("href", sheet);
+  }
+
+  function initGame() {
+    window.currentCards = []
+    window.wCardOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+    wCardOrder = shuffleArray(wCardOrder);
+    console.log(wCardOrder);
+    for (i = 0; i < playerArray.length; i++) {
+      dealPlayer(playerArray[i].sendID)
+    }
+    swapStyleSheet("rMain.css")
+
+    document.getElementsByTagName("BODY")[0].innerHTML = '<div id= "scoreboard">Score<div id="scores"></div></div><div id= "main">     <div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div></div>'
+    window.czar = -1;
+    updateScore();
+    
+    nextTurn();
+
+  };
+
+  function nextTurn() {
+    currentCards = []
+    if (czar < playerArray.length - 1) { czar++ }
+    else { czar = 0 }
+    console.log("czar", czar)
+    window.messageBusTrig.send(playerArray[czar].sendID, "Czar");
+    for (i = 0; i < playerArray.length; i++) {
+      if(i!=czar){
+        window.messageBusTrig.send(playerArray[i].sendID, "newR");
+      }
+    }
+    updateScore();
+    
+
+
+
+  }
+
+  function updateScore() {
+    scoreHTML = ""
+    for (i = 0; i < playerArray.length; i++) {
+      console.log(czar, i)
+      if (i == czar) { scoreHTML = scoreHTML + "<u>" + playerArray[i].name + "</u>" + "&nbsp &nbsp &nbsp" + playerArray[i].score + "</br>"; } else {
+        scoreHTML = scoreHTML + playerArray[i].name + "&nbsp &nbsp &nbsp" + playerArray[i].score + "</br>";
+      }
+    }
+    document.getElementById("scores").innerHTML = scoreHTML;
+  }
+
+
+  function vote() {
+    for (i = 0; i < currentCards.length; i++) {
+      document.getElementById("w" + i).innerHTML = cardDesc[currentCards[i]]
+    }
+    console.log("cz",czar,playerArray)
+    window.messageBusTrig.send(playerArray[czar].sendID, "Vote" + currentCards.toString());
+  }
+
+  function dealPlayer(sendID) {
+    playerCards = window.wCardOrder.splice(0, 10);
+    console.log(sendID, playerCards);
+    window.messageBusTrig.send(sendID, "Init" + playerCards.toString());
+
+
+  };
+
+  function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  };
+
+  // utility function to display the text message in the input field
+  function displayText() {
+    document.getElementById("playernames").innerHTML = "";
+    for (i = 0; i < playerArray.length; i++) {
+      document.getElementById("playernames").innerHTML = document.getElementById("playernames").innerHTML + "<div>" + playerArray[i].name; "</div>";
+    }
+    //console.log(text);
+    //document.getElementById('message').innerText = text;
+    window.castReceiverManager.setApplicationState("Game Warmup");
+  };
+
+</script>
+
+</html>

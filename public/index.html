@@ -1,0 +1,261 @@
+<html>
+
+<head>
+    <title>Cast Against Humanity </title>
+    <link id="pagestyle" rel="stylesheet" type="text/css" href="start.css">
+    <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script type="text/javascript">
+        var applicationID = "43BD0076";/*'794B7BBF';*/
+        var namespace = 'urn:x-cast:uk.co.jonfreer.cah.join';
+        var session = null;
+        var cardDesc = ["Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man", "Jon", "Joe", "Fish", "steve", "apple", "pizza", "hhhh", "q", "Turtle", "computer", "joe face", "the weather", "an old man"]
+
+        /**
+ * Call initialization for Cast
+ */
+        if (!chrome.cast || !chrome.cast.isAvailable) {
+            setTimeout(initializeCastApi, 1000);
+        }
+
+        /**
+           * initialization
+           */
+        function initializeCastApi() {
+            var sessionRequest = new chrome.cast.SessionRequest(applicationID);
+            var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
+                sessionListener,
+                receiverListener);
+
+            chrome.cast.initialize(apiConfig, onInitSuccess, onError);
+        }
+
+        /**
+         * initialization success callback
+         */
+        function onInitSuccess() {
+            appendMessage('onInitSuccess');
+        }
+
+        /**
+         * initialization error callback
+         */
+        function onError(message) {
+            appendMessage('onError: ' + JSON.stringify(message));
+        }
+
+        /**
+         * generic success callback
+         */
+        function onSuccess(message) {
+            appendMessage('onSuccess: ' + message);
+        }
+
+        /**
+         * callback on success for stopping app
+         */
+        function onStopAppSuccess() {
+            appendMessage('onStopAppSuccess');
+        }
+
+        function appendMessage(message) {
+            console.log(message);
+        }
+        /**
+        * session listener during initialization
+        */
+        function sessionListener(e) {
+            appendMessage('New session ID:' + e.sessionId);
+            session = e;
+            session.addUpdateListener(sessionUpdateListener);
+            console.log("brr")
+            session.addMessageListener(namespace, receiverMessage);
+        }
+        //Session listener for players joined
+
+
+        /**
+         * listener for session updates
+         */
+        function sessionUpdateListener(isAlive) {
+            var message = isAlive ? 'Session Updated' : 'Session Removed';
+            message += ': ' + session.sessionId;
+            appendMessage(message);
+            if (!isAlive) {
+                session = null;
+            }
+        }
+
+        /**
+         * utility function to log messages from the receiver
+         * @param {string} namespace The namespace of the message
+         * @param {string} message A message string
+         */
+        function receiverMessage(namespace, message) {
+            appendMessage('receiverMessage: ' + namespace + ', ' + message);
+        }
+
+        /**
+         * receiver listener during initialization
+         */
+        function receiverListener(e) {
+            if (e === 'available') {
+                appendMessage('receiver found');
+            }
+            else {
+                appendMessage('receiver list empty');
+            }
+        }
+
+        /**
+         * stop app/session
+         */
+        function stopApp() {
+            session.stop(onStopAppSuccess, onError);
+        }
+
+        /**
+         * send a message to the receiver using the custom namespace
+         * receiver CastMessageBus message handler will be invoked
+         * @param {string} message A message string
+         */
+        function sendMessage(message) {
+            if (session != null) {
+                session.sendMessage(namespace, message, joinGame(), //Message sent:
+                    onError);
+            }
+            else {
+                chrome.cast.requestSession(function (e) {
+                    session = e;
+                    session.sendMessage(namespace, message, joinGame(), onError);
+                }, onError);
+            }
+
+
+        }
+
+        /**
+         * utility function to handle text typed in by user in the input field
+         */
+        function update() {
+            sendMessage(document.getElementById('input').value);
+        }
+        function swapStyleSheet(sheet) {
+            document.getElementById("pagestyle").setAttribute("href", sheet);
+        }
+
+        function joinGame() {
+            /*var rule = document.styleSheets[styleIndex][cssRuleCode][ruleIndex];
+            var selector = rule.selectorText;  //maybe '#tId'
+            var value = rule.value;   */
+            swapStyleSheet("joined.css")
+            document.getElementsByTagName("BODY")[0].innerHTML = '<div id="wfp">Waiting for Players</div> <div id="playernames"></div> <button onclick="startTrig()" id = "startgame">Start Game</button>';
+            session.addMessageListener(namespace, function (ns, message) {
+                window.playerArray = message.split(",")
+                console.log(playerArray);
+                document.getElementById("playernames").innerHTML = "";
+                for (i = 0; i < playerArray.length; i++) {
+                    document.getElementById("playernames").innerHTML = document.getElementById("playernames").innerHTML + "<div>" + playerArray[i] + "</div>";
+                }
+            });
+
+            console.log("Joined Game");
+            session.addMessageListener('urn:x-cast:uk.co.jonfreer.cah.startTrig', function (ns, message) {
+                //console.log(message)
+                if (message == "GameBegin") {
+                    console.log("GameBegins");
+                    initGame();
+                }
+                else if (message.substring(0, 4) == "Init") {
+                    console.log(message);
+                    window.cardArray = message.substring(4).split(",")
+                    initDeal();
+                } else if (message == "Czar") {
+                    initCzar();
+                    console.log("czar");
+                } else if (message.substring(0, 4) == "Vote") {
+                    updateCzar(message.substring(4));
+                } else if (message.substring(0, 4) == "caUp") {
+                    cardArray.push(message.substring(4));
+                }
+                else if (message == "newR") {
+                    initGame();
+                    initDeal();
+                }
+                else { console.log("else" + message) }
+            }
+            );
+
+        }
+        function startTrig() {
+            namespace2 = 'urn:x-cast:uk.co.jonfreer.cah.startTrig';
+            console.log(session);
+            session.sendMessage('urn:x-cast:uk.co.jonfreer.cah.startTrig', "Start Game", console.log("Trig"), onError);
+        }
+
+        function initGame() {
+            document.getElementsByTagName("BODY")[0].innerHTML = "";
+            swapStyleSheet("sMain.css");
+            document.getElementsByTagName("BODY")[0].innerHTML = '<div class="white" id="card0" onclick="bClick(0)"></div><div class="white" id="card1" onclick="bClick(1)"> </div><div class="white" id="card2" onclick="bClick(2)"> </div><div class="white" id="card3" onclick="bClick(3)"> </div><div class="white" id="card4" onclick="bClick(4)"> </div><div class="white" id="card5" onclick="bClick(5)"> </div><div class="white" id="card6" onclick="bClick(6)"> </div><div class="white" id="card7" onclick="bClick(7)"> </div><div class="white" id="card8" onclick="bClick(8)"> </div><div class="white" id="card9" onclick="bClick(9)"> </div>';
+
+            window.selected = false;
+        }
+
+        function initDeal(message) {
+
+            for (i = 0; i < cardArray.length; i++) {
+                document.getElementById("card" + i).innerHTML = cardDesc[cardArray[i]]
+            }
+            window.selected = false;
+        }
+        function bClick(id) {
+            console.log(id);//selected needs to be reset each round
+            if (selected != true) {
+                document.getElementById("card" + id).style.background = "#d0d0d0";
+                selected = true;
+                session.sendMessage('urn:x-cast:uk.co.jonfreer.cah.startTrig', "pS" + cardArray[id], console.log("Trig"), onError);//pS=playerSubmit
+            }
+            //initCzar()   
+        }
+
+        function initCzar() {
+            document.getElementsByTagName("BODY")[0].innerHTML = ""
+            swapStyleSheet("cMain.css");
+            bodytext = '<div id ="czar">You are the Card Czar</div>'
+            console.log("playerArray", playerArray)
+            for (i = 0; i < playerArray.length - 1; i++) {
+                bodytext = bodytext + '<div class="white" id="w' + i + '" onclick="czarClick(' + i + ')"> </div>';
+                console.log("playerArray", playerArray, i)
+            }
+            document.getElementsByTagName("BODY")[0].innerHTML = bodytext;
+            selected = true;
+
+        }
+        function updateCzar(message) {
+            console.log("updatecz", message)
+            selected = false;
+            window.czarArray = message.split(",")
+            for (i = 0; i < czarArray.length; i++) {
+                document.getElementById("w" + i).innerHTML = cardDesc[czarArray[i]]
+            }
+
+        }
+
+        function czarClick(id) {
+            if (selected != true) {
+                document.getElementById("w" + id).style.background = "#d0d0d0";
+                selected = true;
+                session.sendMessage('urn:x-cast:uk.co.jonfreer.cah.startTrig', "cS" + id, console.log("Trig"), onError);//cS=czarSubmit
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Cast Against Humanity </h1>
+    <form method="get" action="JavaScript:update();">
+        <input id="input" class="border" type="text" size="30" autocomplete="off" placeholder="Nickname" onwebkitspeechchange="transcribe(this.value)"
+            x-webkit-speech/>
+    </form>
+</body>
+
+</html>

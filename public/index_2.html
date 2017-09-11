@@ -1,0 +1,21 @@
+<html>
+    <head>
+<script>
+    var playerArray = [{name: 'abc', id: '44'},{name: '123', id: '44'},{name: '12223', id: '44'}];
+    console.log(playerArray[0].name)
+   
+
+</script>
+    </head>
+
+    <body>
+        <div id = "PlayerNames">
+            Players:
+        </div>
+<script>
+     for (i = 0; i < playerArray.length; i++) { 
+        document.getElementById("PlayerNames").innerHTML = document.getElementById("PlayerNames").innerHTML +"<br>" +playerArray[i].name;
+    }
+</script>
+    </body>
+</html>
