@@ -160,10 +160,11 @@
     updateScore();
     
     nextTurn();
-
+    //<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div>    <div class="white" id="w0"></div><div class="white" id="w1"> </div><div class="white" id="w2"> </div><div class="white" id="w3"> </div><div class="white"id="w4"> </div><div class="white" id="w5"> </div><div class="white"id="w6"> </div><div class="white" id="w7"> </div>
   };
 
   function nextTurn() {
+    document.getElementById("main").innerHTML='<div id="black">The Natural History Museum has just opened an interactive exhibit on ________.</div> '
     currentCards = []
     if (czar < playerArray.length - 1) { czar++ }
     else { czar = 0 }
